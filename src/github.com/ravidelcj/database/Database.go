@@ -27,9 +27,22 @@ func insertNoticeData(db *DB, elem element, folder string) bool  {
 }
 
 
-/*TODO implement this function*/
-func getLastELemet(db *Db) element  {
-
-
-
+/*TODO add id to database*/
+func getLastELemet(db *Db, table string) element  {
+  row, err := db.Query("Select * from "+ table + "order by id DESC LIMIT 1")
+  if err != nil {
+    fmt.Println("Error in retreiving last element from " + table)
+    return nil
+  }
+  defer row.Close()
+  var elem element
+  for row.Next() {
+    var id int
+    err := row.Scan(&id, &elem.title, &elem.date, &elem.url, &elem.remoteUrl)
+      if err != nil {
+        fmt.Println("Error in getting last element")
+      }else {
+        return elem
+      }
+  }
 }
