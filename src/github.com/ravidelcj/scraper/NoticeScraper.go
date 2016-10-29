@@ -12,24 +12,22 @@ import (
 func ScrapeNotice(url string)  {
 
     baseUrl := "http://ggsipuresults.nic.in/ipu/examnotice/"
-    // table, _ := "github.com/PuerkitoBio/goquery";
+
     doc, err := goquery.NewDucmnet(url)
+    if err != nil {
+        fmt.Println("Error in Document Connection NoticeScraper")
+        continue
+    }
     while true {
         var lastElem element
         lastElem = getLastElement()
-        doc, err := goquery.NewDocument("http://ggsipuresults.nic.in/ipu/datesheet/datesheetmain.htm")
-        if err != nil {
-            fmt.Println("Error in Document Connection NoticeScraper line 16 ")
-            continue
-        }
-
         var stackElement StackNode
 
         //parsing document
         doc.Find("table tr").EachWithBreak( func (indexTr int, tr *goquery.Selection)  bool {
           var elem element
           if indexTr >= 1 {
-            tr.Find("td").EachWithBreak( func (indexTd int, td *goquery.Selectiom) bool {
+            tr.Find("td").Each( func (indexTd int, td *goquery.Selectiom) {
               //for title
               if indexTd == 1 {
                 elem.title = td.Text()
@@ -55,14 +53,123 @@ func ScrapeNotice(url string)  {
             if elem.title == lastElem.title {
               return false
             }else {
-              /*TODO add to stack*/
               stackElement.push(elem)
               return true
             }
           }//indexIf
         })//Find
 
-        addStackToDatabase(stackElement)
+        addStackToDatabase(stackElement, "Results")
+    }
+}
+
+//DateSheet Scraper
+func ScrapeDatesheet(url string)  {
+
+    baseUrl := "http://ggsipuresults.nic.in/ipu/datesheet/"
+
+    doc, err := goquery.NewDucmnet(url)
+    if err != nil {
+        fmt.Println("Error in Document Connection DatesheetScraper ")
+        continue
+    }
+    while true {
+        var lastElem element
+        lastElem = getLastElement()
+        var stackElement StackNode
+
+        //parsing document
+        doc.Find("table tr").EachWithBreak( func (indexTr int, tr *goquery.Selection)  bool {
+          var elem element
+          if indexTr >= 1 {
+            tr.Find("td").Each( func (indexTd int, td *goquery.Selectiom) {
+              //for title
+              if indexTd == 1 {
+                elem.title = td.Text()
+              }//titleIf
+
+              //link to ggsipu server
+              if indexTd == 2 {
+                td.Find("a").Each(func(_ int, a *goquery.Selection){
+                  url, exist := a.Attr("href")
+                  if exist {
+                    elem.url = baseUrl+url
+                  } else {
+                    fmt.Println("URL dont exist ")
+                  }
+                })
+              }//index2
+              //date
+              if indexTd == 3 {
+                  elem.date = td.Text()
+              }
+
+            })
+            if elem.title == lastElem.title {
+              return false
+            }else {
+              stackElement.push(elem)
+              return true
+            }
+          }//indexIf
+        })//Find
+
+        addStackToDatabase(stackElement, "Datesheet")
+    }
+}
+
+
+func ScrapeResults(url string)  {
+
+    baseUrl := "http://ggsipuresults.nic.in/ipu/results/"
+
+    doc, err := goquery.NewDucmnet(url)
+    if err != nil {
+        fmt.Println("Error in Document Connection ResultsScraper ")
+        continue
+    }
+    while true {
+        var lastElem element
+        lastElem = getLastElement()
+        var stackElement StackNode
+
+        //parsing document
+        doc.Find("table tr").EachWithBreak( func (indexTr int, tr *goquery.Selection)  bool {
+          var elem element
+          if indexTr >= 1 {
+            tr.Find("td").Each( func (indexTd int, td *goquery.Selectiom) {
+              //for title
+              if indexTd == 1 {
+                elem.title = td.Text()
+              }//titleIf
+
+              //link to ggsipu server
+              if indexTd == 2 {
+                td.Find("a").Each(func(_ int, a *goquery.Selection){
+                  url, exist := a.Attr("href")
+                  if exist {
+                    elem.url = baseUrl+url
+                  } else {
+                    fmt.Println("URL dont exist ")
+                  }
+                })
+              }//index2
+              //date
+              if indexTd == 3 {
+                  elem.date = td.Text()
+              }
+
+            })
+            if elem.title == lastElem.title {
+              return false
+            }else {
+              stackElement.push(elem)
+              return true
+            }
+          }//indexIf
+        })//Find
+
+        addStackToDatabase(stackElement, "Datesheet")
     }
 }
 
@@ -74,10 +181,11 @@ func addStackToDatabase(stack *StackNode, folder string)  {
         path, success := DownloadFile(elem.title, folder, elem.url)
         if success == false {
           //if error try again
-          fmt.Println("Error in downloading file at line 75 NoticeScraper")
+          fmt.Println("Error in downloading file")
           continue
         }else {
           elem.remoteUrl = path
+          //TODO : database variavle db to be added
           insertNoticeData(db, elem, folder)
           stack.pop()
         }
