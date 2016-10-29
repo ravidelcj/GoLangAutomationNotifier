@@ -20,8 +20,13 @@ func ScrapeNotice(url string, db *DB)  {
         continue
     }
     while true {
+
         var lastElem element
-        lastElem = getLastElement(db, "notice_ipu")
+        lastElem, err = getLastElement(db, "notice_ipu")
+        if err != nil {
+          fmt.Println("Error in getting last element notice_ipu")
+          continue
+        }
         var stackElement StackNode
 
         //parsing document
@@ -76,7 +81,11 @@ func ScrapeDatesheet(url string, db *DB)  {
     }
     while true {
         var lastElem element
-        lastElem = getLastElement(db, "datesheet_ipu")
+        lastElem, err = getLastElement(db, "datesheet_ipu")
+        if err != nil {
+          fmt.Println("Error in getting last element notice_ipu")
+          continue
+        }
         var stackElement StackNode
 
         //parsing document
@@ -131,7 +140,11 @@ func ScrapeResults(url string, db *DB)  {
     }
     while true {
         var lastElem element
-        lastElem = getLastElement(db, "results_ipu")
+        lastElem, err = getLastElement(db, "results_ipu")
+        if err != nil {
+          fmt.Println("Error in getting last element notice_ipu")
+          continue
+        }
         var stackElement StackNode
 
         //parsing document
