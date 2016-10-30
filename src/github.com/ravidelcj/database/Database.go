@@ -5,23 +5,15 @@ import(
   "fmt"
   "database/sql"
 	_ "github.com/go-sql-driver/mysql"
-  "github.com/ravidelcj/stack"
+  "github.com/ravidelcj/models"
 )
-
-//Data type that defines one identity
-type Element struct {
-  Title string
-  Date string
-  Url string
-  RemoteUrl string
-}
-
 
 //global database object for every package
 var (
     Db *sql.DB
 )
 
+//initialize global datbase
 func InitDatabase() bool {
   var err error
   Db, err = sql.Open("mysql", "root:admin@/ipuscraper")
@@ -29,8 +21,6 @@ func InitDatabase() bool {
     fmt.Println("Error in database connection")
     return false
   }
-  //defer db.Close()
-
   err = Db.Ping()
   if err != nil {
     fmt.Println("Error in database call")
@@ -39,15 +29,16 @@ func InitDatabase() bool {
   return true
 }
 
-// params  elem : element to be inserted , folder : folderName
-func InsertNoticeData( elem stack.Element, folder string) bool  {
+//Inserts and element to the required table in the Database
+//@params  elem : element to be inserted , folder : folderName
+func InsertNoticeData( elem models.Element, folder string) bool  {
 
     var err error
     var stmt *sql.Stmt
     switch folder {
           case "Results" : stmt, err = Db.Prepare("INSERT results_ipu SET title=?, date=?, url=?, remoteUrl=?")
-          case "Notices" : stmt, err = Db.Prepare("INSERT notice_ipu SET title=?, date=?, url=?, remoteUrl=?")
-          case "Datesheets" : stmt, err = Db.Prepare("INSERT datesheet_ipu SET title=?, date=?, url=?, remoteUrl=?")
+          case "Notice" : stmt, err = Db.Prepare("INSERT notice_ipu SET title=?, date=?, url=?, remoteUrl=?")
+          case "Datesheet" : stmt, err = Db.Prepare("INSERT datesheet_ipu SET title=?, date=?, url=?, remoteUrl=?")
     }
 
     if err != nil {
@@ -62,9 +53,12 @@ func InsertNoticeData( elem stack.Element, folder string) bool  {
     return true
 }
 
-func GetLastElement( table string) (Element, error)  {
-    var elem Element
-    err := Db.QueryRow("Select title, date, url from datesheet_ipu order by id DESC LIMIT 1").Scan(&elem.Title, &elem.Date, &elem.Url)
+
+//Return the last element in the database
+//@params table : table name
+func GetLastElement( table string) (models.Element, error)  {
+    var elem models.Element
+    err := Db.QueryRow("Select title, date, url from " + table + " order by id DESC LIMIT 1").Scan(&elem.Title, &elem.Date, &elem.Url)
 
     if err != nil && err != sql.ErrNoRows {
         fmt.Println("Error in getting last element : ",err)

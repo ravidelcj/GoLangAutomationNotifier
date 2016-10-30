@@ -10,4 +10,10 @@ func Test(t *testing.T)  {
       if err == false {
         t.Error("Error")
       }
+
+      str := "RAvi prasad / ravi   "
+      title := trimAndModify(str)
+      if title != "RAvi_prasad___ravi" {
+        t.Error("String not parsed")
+      }
 }
