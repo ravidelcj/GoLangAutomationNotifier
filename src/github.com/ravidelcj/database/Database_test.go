@@ -8,15 +8,15 @@ import "testing"
 
 func Test(t *testing.T){
 
-      success := initDatabase()
+      success := InitDatabase()
 
       if success == false {
         t.Error("Error in database Connection")
       }
 
-      elem, err1 := getLastElement("datesheet_ipu")
+      elem, err1 := GetLastElement("datesheet_ipu")
       if err1 != nil {
         t.Error("nil returned from table")
       }
-      fmt.Println(elem.title)
+      fmt.Println(elem.Title)
 }

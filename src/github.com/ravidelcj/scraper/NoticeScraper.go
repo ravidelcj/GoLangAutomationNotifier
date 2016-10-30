@@ -1,7 +1,7 @@
 package scraper
 
 import (
-  "fmt",
+  "fmt"
   "github.com/PuerkitoBio/goquery"
   "github.com/ravidelcj/stack"
   "github.com/ravidelcj/download"
@@ -9,34 +9,42 @@ import (
   "strings"
 )
 
+
+type Element struct {
+  Title string
+  Date string
+  Url string
+  RemoteUrl string
+}
+
 //ScrapeNotice from ggsipu
-func ScrapeNotice(url string, db *DB)  {
+func ScrapeNotice(url string)  {
 
     baseUrl := "http://ggsipuresults.nic.in/ipu/examnotice/"
 
     doc, err := goquery.NewDocument(url)
     if err != nil {
         fmt.Println("Error in Document Connection NoticeScraper")
-        continue
+        return
     }
-    while true {
+    for true {
 
-        var lastElem element
-        lastElem, err = getLastElement(db, "notice_ipu")
-        if err != nil {
+
+        lastElem, err1 := database.GetLastElement("notice_ipu")
+        if err1 != nil {
           fmt.Println("Error in getting last element notice_ipu")
           continue
         }
-        var stackElement StackNode
+       stackElement := stack.NewStack()
 
         //parsing document
         doc.Find("table tr").EachWithBreak( func (indexTr int, tr *goquery.Selection)  bool {
-          var elem element
+          var elem stack.Element
           if indexTr >= 1 {
-            tr.Find("td").Each( func (indexTd int, td *goquery.Selectiom) {
+            tr.Find("td").Each( func (indexTd int, td *goquery.Selection) {
               //for title
               if indexTd == 1 {
-                elem.title = strings.Trim(td.Text(), " ")
+                elem.Title = strings.Trim(td.Text(), " ")
               }//titleIf
 
               //link to ggsipu server
@@ -44,7 +52,7 @@ func ScrapeNotice(url string, db *DB)  {
                 td.Find("a").Each(func(_ int, a *goquery.Selection){
                   url, exist := a.Attr("href")
                   if exist {
-                    elem.url = baseUrl+url
+                    elem.Url = baseUrl+url
                   } else {
                     fmt.Println("URL dont exist ")
                   }
@@ -52,50 +60,50 @@ func ScrapeNotice(url string, db *DB)  {
               }//index2
               //date
               if indexTd == 3 {
-                  elem.date = td.Text()
+                  elem.Date = td.Text()
               }
 
             })
-            if elem.url == lastElem.url {
+            if elem.Url == lastElem.Url {
               return false
             }else {
-              stackElement.push(elem)
+              stackElement.Push(elem)
               return true
             }
           }//indexIf
+          return true
         })//Find
 
-        addStackToDatabase(stackElement, "Results", db)
+        addStackToDatabase(stackElement, "Results")
     }
 }
 
 //DateSheet Scraper
-func ScrapeDatesheet(url string, db *DB)  {
+func ScrapeDatesheet(url string)  {
 
     baseUrl := "http://ggsipuresults.nic.in/ipu/datesheet/"
 
     doc, err := goquery.NewDocument(url)
     if err != nil {
         fmt.Println("Error in Document Connection DatesheetScraper ")
-        continue
+        return
     }
-    while true {
-        var lastElem element
-        lastElem, err = getLastElement(db, "datesheet_ipu")
-        if err != nil {
+    for true {
+        lastElem, err1 := database.GetLastElement("datesheet_ipu")
+        if err1 != nil {
           fmt.Println("Error in getting last element notice_ipu")
           continue
         }
-        var stackElement StackNode
+        stackElement := stack.NewStack()
 
         //parsing document
         doc.Find("table tr").EachWithBreak( func (indexTr int, tr *goquery.Selection)  bool {
-          var elem element
+          var elem stack.Element
           if indexTr >= 1 {
-            tr.Find("td").Each( func (indexTd int, td *goquery.Selectiom) {
+            tr.Find("td").Each( func (indexTd int, td *goquery.Selection) {
               //for title
               if indexTd == 1 {
-                elem.title = strings.Trim(td.Text(), " ")
+                elem.Title = strings.Trim(td.Text(), " ")
               }//titleIf
 
               //link to ggsipu server
@@ -103,7 +111,7 @@ func ScrapeDatesheet(url string, db *DB)  {
                 td.Find("a").Each(func(_ int, a *goquery.Selection){
                   url, exist := a.Attr("href")
                   if exist {
-                    elem.url = baseUrl+url
+                    elem.Url = baseUrl+url
                   } else {
                     fmt.Println("URL dont exist ")
                   }
@@ -111,50 +119,51 @@ func ScrapeDatesheet(url string, db *DB)  {
               }//index2
               //date
               if indexTd == 3 {
-                  elem.date = td.Text()
+                  elem.Date = td.Text()
               }
 
             })
-            if elem.url == lastElem.url {
+            if elem.Url == lastElem.Url {
               return false
             }else {
-              stackElement.push(elem)
+              stackElement.Push(elem)
               return true
             }
           }//indexIf
+          return true
         })//Find
 
-        addStackToDatabase(stackElement, "Datesheet", db)
+        addStackToDatabase(stackElement, "Datesheet")
     }
 }
 
 
-func ScrapeResults(url string, db *DB)  {
+func ScrapeResults(url string)  {
 
     baseUrl := "http://ggsipuresults.nic.in/ipu/results/"
 
     doc, err := goquery.NewDocument(url)
     if err != nil {
         fmt.Println("Error in Document Connection ResultsScraper ")
-        continue
+        return
     }
-    while true {
-        var lastElem element
-        lastElem, err = getLastElement(db, "results_ipu")
-        if err != nil {
+    for true {
+        //var lastElem Element
+        lastElem, err1 := database.GetLastElement("results_ipu")
+        if err1 != nil {
           fmt.Println("Error in getting last element notice_ipu")
           continue
         }
-        var stackElement StackNode
+        stackElement := stack.NewStack()
 
         //parsing document
         doc.Find("table tr").EachWithBreak( func (indexTr int, tr *goquery.Selection)  bool {
-          var elem element
+          var elem stack.Element
           if indexTr >= 1 {
-            tr.Find("td").Each( func (indexTd int, td *goquery.Selectiom) {
+            tr.Find("td").Each( func (indexTd int, td *goquery.Selection) {
               //for title
               if indexTd == 1 {
-                elem.title = strings.Trim(td.Text(), " ")
+                elem.Title = strings.Trim(td.Text(), " ")
               }//titleIf
 
               //link to ggsipu server
@@ -162,7 +171,7 @@ func ScrapeResults(url string, db *DB)  {
                 td.Find("a").Each(func(_ int, a *goquery.Selection){
                   url, exist := a.Attr("href")
                   if exist {
-                    elem.url = baseUrl+url
+                    elem.Url = baseUrl+url
                   } else {
                     fmt.Println("URL dont exist ")
                   }
@@ -170,37 +179,37 @@ func ScrapeResults(url string, db *DB)  {
               }//index2
               //date
               if indexTd == 4 {
-                  elem.date = td.Text()
+                  elem.Date = td.Text()
               }
 
             })
-            if elem.url == lastElem.url {
+            if elem.Url == lastElem.Url {
               return false
             }else {
-              stackElement.push(elem)
+              stackElement.Push(elem)
               return true
             }
           }//indexIf
+          return true
         })//Find
 
-        addStackToDatabase(stackElement, "Datesheet", db)
+        addStackToDatabase(stackElement, "Datesheet")
     }
 }
 
-func addStackToDatabase(stack *StackNode, folder string, db *DB)  {
+func addStackToDatabase(stack *stack.StackNode, folder string)  {
 
-    while !stack.isEmpty() {
-        elem := stack.top()
-        path, success := DownloadFile(elem.title, folder, elem.url)
+    for !stack.IsEmpty() {
+        elem, _ := stack.Top()
+        path, success := download.DownloadFile(elem.Title, folder, elem.Url)
         if success == false {
           //if error try again
           fmt.Println("Error in downloading file")
           continue
         }else {
-          elem.remoteUrl = path
-          //TODO : database variavle db to be added
-          insertNoticeData(db, elem, folder)
-          stack.pop()
+          elem.RemoteUrl = path
+          database.InsertNoticeData(elem, folder)
+          stack.Pop()
         }
     }
 }

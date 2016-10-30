@@ -5,54 +5,54 @@ import "testing"
 
 
 func Test(t *testing.T)  {
-    elem := element{title : "title", date : "date", url : "url", remoteUrl : "remoteUrl"}
-    var st StackNode
+    elem := Element{Title : "title", Date : "date", Url : "url", RemoteUrl : "remoteUrl"}
+    st := NewStack()
 
     //checking initial top position
-    _, err := st.top()
+    _, err := st.Top()
 
     if err == true {
       t.Error("Error in first top")
     }
 
     //initial pop checking
-    popElement := st.pop()
+    popElement := st.Pop()
     if popElement == true {
         t.Error("error in first pop")
     }
 
     //testing initial empty
-    s := st.isEmpty()
+    s := st.IsEmpty()
     if s == false {
       t.Error("empty")
     }
 
     //initial size checking
-    size1 := st.size()
+    size1 := st.Size()
     if size1 != 0 {
       t.Error("size not equal 0")
     }
 
     //pushing one element
-    v := st.push(elem)
+    v := st.Push(elem)
     if v == false {
       t.Error("error in push")
     }
 
     //testing size
-    size2 := st.size()
+    size2 := st.Size()
     if size2 != 1 {
       t.Error("size not equal 1")
     }
 
     //pushing second element
-    u := st.push(elem)
+    u := st.Push(elem)
     if u == false {
       t.Error("error in push")
     }
 
     //getting top element
-    topElement, err := st.top()
+    topElement, err := st.Top()
 
     if err == false {
       t.Error("Error in first top")
@@ -62,13 +62,13 @@ func Test(t *testing.T)  {
     }
 
     //size testing
-    size3 := st.size()
+    size3 := st.Size()
     if size3 != 2 {
       t.Error("size not equal 1")
     }
 
     //testing empty condition
-    q := st.isEmpty()
+    q := st.IsEmpty()
     if q == true {
       t.Error("empty")
     }
