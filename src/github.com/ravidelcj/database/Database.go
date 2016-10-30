@@ -28,14 +28,13 @@ func initDatabase() bool {
     fmt.Println("Error in database connection")
     return false
   }
-  defer db.Close()
+  //defer db.Close()
 
   err = db.Ping()
   if err != nil {
     fmt.Println("Error in database call")
     return false
   }
-
   return true
 }
 
@@ -63,19 +62,20 @@ func insertNoticeData( elem element, folder string) bool  {
 
 func getLastElement( table string) (element, error)  {
     var elem element
-    row, err := db.Query("Select title, date, url from datesheet_ipu order by id DESC LIMIT 1")
-    if err != nil {
-         fmt.Println("Error in retreiving last element from " + table)
-         return elem, errors.New("error in retreiving")
-    }
-    defer row.Close()
-    for row.Next() {
-        err := row.Scan(&elem.title, &elem.date, &elem.url, &elem.remoteUrl)
-        if err != nil {
-            fmt.Println("Error in getting last element")
+  //    var str string
+    err := db.QueryRow("Select title, date, url from datesheet_ipu order by id DESC LIMIT 1").Scan(&elem.title, &elem.date, &elem.url)
+    // if err != nil {
+    //      fmt.Println("Error in retreiving last element from " + table)
+    //      return elem, errors.New("error in retreiving")
+    // }
+    //defer row.Close()
+    // for row.Next() {
+
+        if err != nil && err != sql.ErrNoRows {
+            fmt.Println("Error in getting last element : ",err)
         }else {
            return elem, nil
         }
-    }
+    // }
     return elem, errors.New("Statement gives no results")
 }
